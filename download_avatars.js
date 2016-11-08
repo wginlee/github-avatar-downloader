@@ -15,12 +15,12 @@ console.log('Welcome to the GitHub Avatar Downloader!');
 
 
 //download the image given the avatar url
-function downloadImageByURL(url, filePath, cb) {
+function downloadImageByURL(url, fileName, cb) {
 
   //gets the filePath and creates a directory accordin to the path if needed
-  const regex = /(\w+)\//;
-  var dir = regex.exec(filePath)[1];
-
+  // const regex = /(\w+)\//;
+  // var dir = regex.exec(filePath)[1];
+  var dir = "avatars";
 
   if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
@@ -61,13 +61,18 @@ function downloadImageByURL(url, filePath, cb) {
 
     }
 
-    fs.writeFile(filePath + ext, data, { encoding: 'binary' }, function(err, res){
+    let filePath = fileName + ext;
+    let fullPath = dir + '\/'+ filePath;
+    fs.writeFile( fullPath, data, { encoding: 'binary' }, function(err, res){
       //handle filesystem error here (with a callback)
       if(err){
         console.error(err);
       }
     });
+    console.log(filePath + " downloaded.");
+
   });
+
 }
 
 //makes a request for JSON, get back an array of contributors
@@ -84,25 +89,25 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
   request.get(options, function (error, response, body){
     const responseData = JSON.parse(body);
-
     cb(responseData);
 
-  })
-    .on('end', function(response){
-      console.log('Download complete.');
-    });
+  });
 }
 
 //download the avatars per contributor
 function downloadAvatars(contributors){
   const directory = "avatars";
+  if (contributors.message === 'Not Found'){
+    console.log("Repository not found.");
+    process.exit();
+  }
   contributors.forEach((contributor) => {
-    downloadImageByURL(contributor.avatar_url, directory + '\/' + contributor.login);
+    downloadImageByURL(contributor.avatar_url, contributor.login);
   });
 }
 
 // halt the program if not enough arguements, yell some more
-if (!args || !args[0] || !args[1] || args.length > 2){
+if (!args || !args[1] || args.length > 2){
   console.log("Please pass in 2 arguments: <repoOwner> <repoName>");
 } else {
   getRepoContributors(owner, repo, downloadAvatars);
