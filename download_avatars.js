@@ -1,5 +1,8 @@
 var args = process.argv.slice(2);
 
+var repoOwner = args[0];
+var repoName = args[1];
+
 var request = require('request');
 var fs = require('fs');
 
@@ -8,11 +11,9 @@ const GITHUB_TOKEN = "40296713ef37d0aae3a6d706d7c45010938b3aaf";
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
-
+//makes a request for JSON, get back an array of contributors
 function getRepoContributors(repoOwner, repoName, cb) {
-  // ...
   var requestURL = `https://${GITHUB_USER}:${GITHUB_TOKEN}@api.github.com/repos/${repoOwner}/${repoName}/contributors`;
-  // console.log(requestURL);
 
 
   var options = {
@@ -23,67 +24,81 @@ function getRepoContributors(repoOwner, repoName, cb) {
   };
 
   request.get(options, function (error, response, body){
-    // console.log(response.headers['content-type']);
     const responseData = JSON.parse(body);
-    // console.log(Object.keys(responseData[0]));
-    // console.log(responseData[0].login);
+
     cb(responseData);
 
   });
 }
 
-// getRepoContributors("jquery", "jquery", function(err, result) {
-//   console.log("Errors:", err);
-//   console.log("Result:", result);
-// });
-
+//download the avatars per contributor
 function downloadAvatars(contributors){
   const directory = "avatars";
-  console.log(directory);
   contributors.forEach((contributor) => {
-    console.log(contributor.avatar_url);
     downloadImageByURL(contributor.avatar_url, directory+'\/'+contributor.login);
   });
 }
 
 
-
-function downloadImageByURL(url, filePath) {
-  // ...
+//download the image given the avatar url
+function downloadImageByURL(url, filePath, cb) {
 
   //gets the filePath and creates a directory accordin to the path if needed
   const regex = /(\w+)\//;
-  console.log(filePath);
   var dir = regex.exec(filePath)[1];
 
-  const png = "image/png";
-  const jpg = "image/jpeg";
 
-  var extn;
-
-
-  console.log(dir);
   if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
   }
 
-  request.get(url, function (error, response, body){
-    var imageType = response.headers['content-type']
-    extn = (imageType.toString() === png) ? ".png" : ".jpg";
-  })
-    .on('error', function (err){
-      throw err;
-    })
-    // .on('data', function (response){
-    //   console.log(response.headers['content-type']);
-    // })
-    .on('end', function (response){
-      console.log("Download complete.");
-    })
-    .pipe(fs.createWriteStream(`./${filePath+extn}`));
+  const png = "image/png";
+  const jpg = "image/jpeg";
+  const gif = "image/gif";
+
+
+  //request the image from the server (find out if the image is jpg or png)
+  request.get({ url, encoding: 'binary' }, function(err, response, data)
+  {
+    if(err)
+    {
+      console.error(err);
+      return;
+
+    }
+    var ext = '.png';
+
+    // determine the file extension given the content type in the header (default to png)
+    switch(response.headers['content-type'])
+    {
+      case "image/jpeg":
+      case "image/pjpeg":
+        ext = '.jpg';
+        break;
+
+      case "image/gif":
+        ext = ".gif";
+        break;
+
+      case "image/bmp":
+      case "image/x-windows-bmp":
+        ext = ".bmp";
+        break;
+
+      case "image/png":
+        ext = ".png";
+        break;
+    };
+
+    fs.writeFile(filePath + ext, data, { encoding: 'binary' }, function(err, res)
+    {
+      //handle filesystem error here (with a callback)
+      if(err)
+      {
+        console.error(err);
+      }
+    });
+  });
 }
 
-// downloadImageByURL("https://avatars2.githubusercontent.com/u/2741?v=3&s=466", "avatars/kvirani.jpg");
-
-getRepoContributors("jquery", "jquery", downloadAvatars);
-// console.log(avatarURLs);
+getRepoContributors(repoOwner, repoName, downloadAvatars);
