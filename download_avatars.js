@@ -1,7 +1,16 @@
 var args = process.argv.slice(2);
 
-var repoOwner = args[0];
-var repoName = args[1];
+// halt the program if not enough arguements, yell some more
+if (!args || !args[0] || !args[1]){
+  console.log("Please pass in 2 arguments: <repoOwner> <repoName>");
+  return;
+}
+
+var owner = args[0];
+var repo = args[1];
+
+
+
 
 var request = require('request');
 var fs = require('fs');
@@ -28,7 +37,10 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
     cb(responseData);
 
-  });
+    })
+    .on('end', function(response){
+        console.log('Download complete.');
+       });
 }
 
 //download the avatars per contributor
@@ -85,9 +97,6 @@ function downloadImageByURL(url, filePath, cb) {
         ext = ".bmp";
         break;
 
-      case "image/png":
-        ext = ".png";
-        break;
     };
 
     fs.writeFile(filePath + ext, data, { encoding: 'binary' }, function(err, res)
@@ -101,4 +110,4 @@ function downloadImageByURL(url, filePath, cb) {
   });
 }
 
-getRepoContributors(repoOwner, repoName, downloadAvatars);
+getRepoContributors(owner, repo, downloadAvatars);
