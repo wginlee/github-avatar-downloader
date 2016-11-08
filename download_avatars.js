@@ -102,7 +102,7 @@ function downloadAvatars(contributors){
 }
 
 // halt the program if not enough arguements, yell some more
-if (!args || !args[0] || !args[1]){
+if (!args || !args[0] || !args[1] || args.length > 2){
   console.log("Please pass in 2 arguments: <repoOwner> <repoName>");
 } else {
   getRepoContributors(owner, repo, downloadAvatars);
