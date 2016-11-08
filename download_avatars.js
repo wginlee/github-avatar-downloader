@@ -88,6 +88,11 @@ function getRepoContributors(repoOwner, repoName, cb) {
   };
 
   request.get(options, function (error, response, body){
+    if(error) {
+      console.error(error);
+      return;
+
+    }
     const responseData = JSON.parse(body);
     cb(responseData);
 
@@ -97,8 +102,13 @@ function getRepoContributors(repoOwner, repoName, cb) {
 //download the avatars per contributor
 function downloadAvatars(contributors){
   const directory = "avatars";
+  // console.log(contributors.message);
   if (contributors.message === 'Not Found'){
     console.log("Repository not found.");
+    process.exit();
+  }
+  if (contributors.message === 'Bad credentials'){
+    console.log("Bad credentials. Please check your github user id or token in your .env file");
     process.exit();
   }
   contributors.forEach((contributor) => {
