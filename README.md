@@ -10,4 +10,3 @@ This program should be executed from the command line, in the following manner:
 
 `node download_avatars.js jquery jquery`
 
-... I'm going in, wish me luck
