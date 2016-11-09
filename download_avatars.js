@@ -1,4 +1,5 @@
 require('dotenv').config();
+var getRepoContributors = require('./get-repo-contributors');
 
 var args = process.argv.slice(2);
 
@@ -17,9 +18,7 @@ console.log('Welcome to the GitHub Avatar Downloader!');
 //download the image given the avatar url
 function downloadImageByURL(url, fileName, cb) {
 
-  //gets the filePath and creates a directory accordin to the path if needed
-  // const regex = /(\w+)\//;
-  // var dir = regex.exec(filePath)[1];
+  //creates a directory according to the path if needed
   var dir = "avatars";
 
   if (!fs.existsSync(dir)){
@@ -72,37 +71,11 @@ function downloadImageByURL(url, fileName, cb) {
     console.log(filePath + " downloaded.");
 
   });
-
-}
-
-//makes a request for JSON, get back an array of contributors
-function getRepoContributors(repoOwner, repoName, cb) {
-  var requestURL = `https://${GITHUB_USER}:${GITHUB_TOKEN}@api.github.com/repos/${repoOwner}/${repoName}/contributors`;
-
-
-  var options = {
-    url: requestURL,
-    headers: {
-      "User-Agent": "GitHub Avatar Downloader - Student Project"
-    }
-  };
-
-  request.get(options, function (error, response, body){
-    if(error) {
-      console.error(error);
-      return;
-
-    }
-    const responseData = JSON.parse(body);
-    cb(responseData);
-
-  });
 }
 
 //download the avatars per contributor
 function downloadAvatars(contributors){
   const directory = "avatars";
-  // console.log(contributors.message);
   if (contributors.message === 'Not Found'){
     console.log("Repository not found.");
     process.exit();
@@ -122,4 +95,3 @@ if (!args || !args[1] || args.length > 2){
 } else {
   getRepoContributors(owner, repo, downloadAvatars);
 }
-
