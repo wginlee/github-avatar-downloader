@@ -29,7 +29,6 @@ function downloadImageByURL(url, fileName, cb) {
   const jpg = "image/jpeg";
   const gif = "image/gif";
 
-
   //request the image from the server (find out if the image is jpg or png)
   request.get({
     url, encoding: 'binary'

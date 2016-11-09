@@ -27,5 +27,3 @@ module.exports = function getRepoContributors(repoOwner, repoName, cb) {
 
   });
 };
-
-// console.log(module.exports);

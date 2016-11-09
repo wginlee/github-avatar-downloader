@@ -29,9 +29,7 @@ function recommend(contributors){
 
     loadStarredReposByURL(newURL, fillRepoList);
   });
-
 }
-
 
 var counter = 0;
 function loadStarredReposByURL(url, cb){
@@ -62,7 +60,6 @@ function loadStarredReposByURL(url, cb){
         filterOutput(allStaredRepos);
       }
     });
-
 }
 
 function fillRepoList(repos){
@@ -70,7 +67,6 @@ function fillRepoList(repos){
   repos.forEach((repo) => {
     (allStaredRepos[repo.full_name]) ? allStaredRepos[repo.full_name] += 1 :  allStaredRepos[repo.full_name] = 1;
   });
-
 }
 
 //this function actually logs the output from the object containing all starred repositories
